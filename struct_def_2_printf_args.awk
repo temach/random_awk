@@ -87,7 +87,7 @@ arrayname = substr($0, RSTART, RLENGTH)
 
 # get number of rows
 match($0, /\[[0-9]*\]/)
-rows = substr($0, RSTART + 1, RLENGTH - 2)
+rows = strtonum( substr($0, RSTART + 1, RLENGTH - 2) )
 
 # create argument format
 for (i = 0; i < rows; i++) {
@@ -103,6 +103,8 @@ spec = sprintf("==%s==", $0)
 
 finalout = finalout sprintf("%s", spec)
 }
+
+
 
 
 END {
