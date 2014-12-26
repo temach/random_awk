@@ -1,10 +1,9 @@
 ##
-## This is to read struct declaration that is made up of 
-## basic types and create a string to print the structure 
-## 
-## The string is terminated with ); to make it a valid SQL query
-## Also every 10 specifiers a new line is inserted to make it easier to read
 ##
+## This is to read struct definition and create argument list
+## that could be given to printf.
+##
+
 
 
 BEGIN {
@@ -31,9 +30,6 @@ if ( !yes ) {
     next
 }
 
-
-# Determine type of what we got
-unsig = match($0, /unsigned/)
 
 # Find what we got 
 # note the regex: the pattern has to be word that can appear at start of line.
