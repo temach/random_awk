@@ -30,14 +30,20 @@ finalout = ""
 // {
 
 # Find what we got
-unsig = match($0, /unsigned/)
+unsig = match($0, /[ ^]unsigned /)
 array = match($0, /\[.?.?.?\]/)
-char = match($0, /char/)
-integ = match($0, /int/)
-short = match($0, /short/)
-flt = match($0, /float/)
+char = match($0, /[ ^]char /)
+integ = match($0, /[ ^]int /)
+short = match($0, /[ ^]short /)
+flt = match($0, /[ ^]float /)
 
-arincpos = match($0, /ARINC_Position/) 
+arincpos = match($0, /[ ^]ARINC_Position /) 
+
+
+# for debug: print each line and what it matches
+#print $0
+#print unsig "  " array "  " char "  " integ "  "  short "  "  flt "   "  arincpos
+#print "\n\n"
 
 # Get conversion specifier
 if (array)
