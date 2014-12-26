@@ -1,7 +1,10 @@
 ##
-## This is to read struct definition and create argument list
-## that could be given to printf.
+## This is to read struct declaration that is made up of 
+## basic types and create a string to print the structure 
 ## 
+## The string is terminated with ); to make it a valid SQL query
+## Also every 10 specifiers a new line is inserted to make it easier to read
+##
 
 
 BEGIN {
