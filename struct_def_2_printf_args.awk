@@ -35,10 +35,14 @@ if ( !yes ) {
 # Determine type of what we got
 unsig = match($0, /unsigned/)
 
-char = match($0, /char/)
-integ = match($0, /int/)
-short = match($0, /short/)
-flt = match($0, /float/)
+# Find what we got 
+# note the regex: the pattern has to be word that can appear at start of line.
+unsig = match($0, /[ ^]unsigned /)
+
+char = match($0, /[ ^]char /)
+integ = match($0, /[ ^]int /)
+short = match($0, /[ ^]short /)
+flt = match($0, /[ ^]float /)
 
 array = match($0, /\[[0-9]*\]/)
 if (array) {
@@ -48,10 +52,15 @@ if (array) {
         print "multidim"
 }
 
-
 # Custom data types
-arincpos = match($0, /ARINC_Position/) 
+arincpos = match($0, /[ ^]ARINC_Position /) 
 
+
+
+# debug: print each line and what it matches
+#print $0
+#print unsig "  " array "  " char "  " integ "  "  short "  "  flt "   "  arincpos
+#print "\n\n"
 
 
 # set spec to none, so we can test if it was assigned
