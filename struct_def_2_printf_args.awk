@@ -71,7 +71,7 @@ sub(/ARINC_Position/, "", copy)
 match(copy, namere)
 # add a . to the name, since we will need items from the struct
 name = substr(copy, RSTART, RLENGTH) "."
-spec = sprintf("%s%s%s%s%s%s%s%s%s%s%s%s", pre, name, "Lat_Letter", join, name, "Latitude", join, name, "Lon_Letter", join, name, "Longitude", post)
+spec = sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s", pre, name, "Lat_Letter", join, name, "Latitude", join, name, "Lon_Letter", join, name, "Longitude", post)
 }
 
 else if ( (unsig || char || short || integ || flt) && ! arraydouble) {
