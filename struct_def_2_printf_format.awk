@@ -21,7 +21,8 @@ ucharf = intf
 
 charf = "'%c', "
 fltf = "%f, "
-arrayf = "\\\"%s\\\", "
+
+stringf = "\\\"%s\\\", "
 
 lc = 0
 
@@ -34,23 +35,38 @@ finalout = ""
 
 # Find what we got
 unsig = match($0, /[ ^]unsigned /)
-array = match($0, /\[.?.?.?\]/)
+
 char = match($0, /[ ^]char /)
 integ = match($0, /[ ^]int /)
 short = match($0, /[ ^]short /)
 flt = match($0, /[ ^]float /)
+dbl = match($0, /[ ^]double /)
+
+string = (char && ! unsig)
+
+array = match($0, /\[.?.?.?\]/)
+if (array) {
+    after = substr($0, RSTART + RLENGTH)
+    arraydouble = match(after, /\[[0-9]*\]/)
+    if (arraydouble) {
+        array = 0       # if its a double array then don't act like its a simple array
+        print "multidim"
+    }
+}
 
 arincpos = match($0, /[ ^]ARINC_Position /) 
 
 
-# for debug: print each line and what it matches
-#print $0
-#print unsig "  " array "  " char "  " integ "  "  short "  "  flt "   "  arincpos
-#print "\n\n"
+
+# debug: print each line and what it matches
+# print $0
+# print unsig "  " array "  " char "  " integ "  "  short "  "  flt "   "  arincpos
+# print "\n\n"
+
 
 # Get conversion specifier
-if (array)
-spec = arrayf
+if (array && string)
+spec = stringf
 
 else if (unsig && (char || integ || short))
 spec = uintf
@@ -61,7 +77,7 @@ spec = charf
 else if (integ || short)
 spec = intf
 
-else if (flt)
+else if (flt || dbl)
 spec = fltf
 
 else if (arincpos) {
@@ -73,12 +89,52 @@ else
 spec = sprintf("==%s==", $0)
 
 
-# sub(/ .*/, "", $0)
+# The type is determined. But if its an array we 
+# still have some work to do! Because items from 
+# the array might need to be printed separately 
+
+
+# if its a 2D array of strings
+if (arraydouble && string) {
+# get number of rows
+match($0, /\[[0-9]*\]/)
+rows = strtonum( substr($0, RSTART + 1, RLENGTH - 2) )
+
+# create argument format
+for (i = 0; i < rows; i++)
+    spec = sprintf("%s%s", spec, stringf)
+
+}
+
+ 
+# So its its an array but NOT of chars (so its not a string)
+if (array && ! string) {
+
+# get number of rows
+match($0, /\[[0-9]*\]/)
+rows = strtonum( substr($0, RSTART + 1, RLENGTH - 2) )
+
+arrayitem = spec
+
+# zero the spec and recompose it differently
+spec = ""
+
+# create argument format
+for (i = 0; i < rows; i++)
+    spec = sprintf("%s%s", spec, arrayitem)
+
+# end the if (array && ! string) block
+}
+
+
+
+# Now we finally have our string, add it to the bigger string
 finalout = finalout sprintf("%s", spec)
 
 }
 
 END {
+
 
 # what ever it was and a new line
 replace = "\& \"\n\""
