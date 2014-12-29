@@ -50,7 +50,7 @@ if (array) {
     arraydouble = match(after, /\[[0-9]*\]/)
     if (arraydouble) {
         array = 0       # if its a double array then don't act like its a simple array
-        print "multidim"
+        #print "multidim"
     }
 }
 
@@ -65,7 +65,7 @@ arincpos = match($0, /[ ^]ARINC_Position /)
 
 
 # Get conversion specifier
-if (string)
+if (string && (array || arraydouble))
 spec = stringf
 
 else if (unsig && (char || integ || short))
@@ -85,9 +85,6 @@ spec = sprintf("%s%s%s%s", charf, fltf, charf, fltf)
 lc += 3
 }
 
-else 
-spec = sprintf("==%s==", $0)
-
 
 # The type is determined. But if its an array we 
 # still have some work to do! Because items from 
@@ -100,10 +97,16 @@ if (arraydouble && string) {
 match($0, /\[[0-9]*\]/)
 rows = strtonum( substr($0, RSTART + 1, RLENGTH - 2) )
 
-# create argument format
-for (i = 0; i < rows; i++)
-    spec = sprintf("%s%s", spec, stringf)
+arrayitem = spec
 
+# zero the spec and recompose it differently
+spec = ""
+
+# create argument format
+for (i = 0; i < rows; i++) 
+    spec = sprintf("%s%s", spec, arrayitem)
+
+# finish the if (arraydouble && string)
 }
 
  
@@ -127,11 +130,15 @@ for (i = 0; i < rows; i++)
 }
 
 
+# set default if nothing was assigned
+if ( length(spec) < 2 ) 
+    spec = sprintf("==%s==", $0)
 
 # Now we finally have our string, add it to the bigger string
 finalout = finalout sprintf("%s", spec)
 
 }
+
 
 END {
 
