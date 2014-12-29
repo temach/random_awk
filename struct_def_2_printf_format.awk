@@ -65,7 +65,7 @@ arincpos = match($0, /[ ^]ARINC_Position /)
 
 
 # Get conversion specifier
-if (array && string)
+if (string)
 spec = stringf
 
 else if (unsig && (char || integ || short))
