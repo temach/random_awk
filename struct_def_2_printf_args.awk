@@ -39,13 +39,17 @@ char = match($0, /[ ^]char /)
 integ = match($0, /[ ^]int /)
 short = match($0, /[ ^]short /)
 flt = match($0, /[ ^]float /)
+dbl = match($0, /[ ^]double /)
+
 
 array = match($0, /\[[0-9]*\]/)
 if (array) {
     after = substr($0, RSTART + RLENGTH)
     arraydouble = match(after, /\[[0-9]*\]/)
-    if (arraydouble)
+    if (arraydouble) {
+        array = 0       # if its a double array then don't act like its a simple array
         print "multidim"
+    }
 }
 
 # Custom data types
@@ -54,9 +58,19 @@ arincpos = match($0, /[ ^]ARINC_Position /)
 
 
 # debug: print each line and what it matches
-#print $0
-#print unsig "  " array "  " char "  " integ "  "  short "  "  flt "   "  arincpos
-#print "\n\n"
+# print $0
+# print unsig "  " array "  " char "  " integ "  "  short "  "  flt "   "  arincpos
+# print "\n\n"
+
+
+string = (char && ! unsig)
+print $0
+print string
+print "\n\n"
+
+integral = (unsig || short || integ)
+floating = (flt || dbl)
+numeric = (integral || floating)
 
 
 # set spec to none, so we can test if it was assigned
@@ -74,13 +88,7 @@ name = substr(copy, RSTART, RLENGTH) "."
 spec = sprintf("%s%s%s%s%s%s%s%s%s%s%s%s%s", pre, name, "Lat_Letter", join, name, "Latitude", join, name, "Lon_Letter", join, name, "Longitude", post)
 }
 
-else if ( (unsig || char || short || integ || flt) && ! arraydouble) {
-match($0, namere)
-spec = substr($0, RSTART, RLENGTH)
-spec = sprintf("%s%s%s", pre, spec, post)
-}
-
-else if ( arraydouble ) {
+else if ( (arraydouble && string) || (numeric && array)) {
 # get array name
 match($0, namere)
 arrayname = substr($0, RSTART, RLENGTH)
@@ -90,11 +98,19 @@ match($0, /\[[0-9]*\]/)
 rows = strtonum( substr($0, RSTART + 1, RLENGTH - 2) )
 
 # create argument format
-for (i = 0; i < rows; i++) {
+for (i = 0; i < rows; i++) 
     spec = spec sprintf("%s%s[%d]%s", pre, arrayname, i, post)
+
+# finish the if ( arraydouble || (numeric && array)
 }
 
+else if ( numeric || string ) {
+match($0, namere)
+spec = substr($0, RSTART, RLENGTH)
+spec = sprintf("%s%s%s", pre, spec, post)
 }
+
+
 
 
 # set default if nothing was assigned
